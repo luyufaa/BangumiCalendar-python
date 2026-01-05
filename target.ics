@@ -1,6 +1,7 @@
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//BangumiCalendar//
+X-WR-TIMEZONE:UTC
 BEGIN:VEVENT
 SUMMARY:[16:00Z] 我们不可能成为恋人！绝对不行。 (※似乎
  可行？) 1
