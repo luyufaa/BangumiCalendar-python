@@ -1,4 +1,4 @@
-from icalendar import Calendar, Event
+from icalendar import Calendar, Event, vDatetime
 from datetime import timedelta
 
 class iCal:
@@ -6,17 +6,21 @@ class iCal:
         self.cal = Calendar()
         self.cal.add('prodid', '-//BangumiCalendar//')
         self.cal.add('version', '2.0')
+        # This header helps some apps realize the file uses standard offsets
+        self.cal.add('x-wr-timezone', 'UTC') 
 
     def setEvent(self, summary, time, uuid, description):
         event = Event()
         event.add('summary', summary)
-        event.add('dtstart', time) # 'time' is already UTC-aware from util.py
-        event.add('dtend', time + timedelta(minutes=30))
+        
+        # Use vDatetime to ensure the 'Z' is explicitly handled
+        event.add('dtstart', vDatetime(time))
+        event.add('dtend', vDatetime(time + timedelta(minutes=30)))
+        
         event.add('uid', uuid)
         event.add('description', description)
         self.cal.add_component(event)
 
     def write(self, filename="target.ics"):
         with open(filename, 'wb') as f:
-            # icalendar will append 'Z' to timestamps if tzinfo=timezone.utc
             f.write(self.cal.to_ical())
