@@ -1,40 +1,63 @@
 import requests
 
-from pojo import project, ep
+class Subject:
+    def __init__(self, id, name, name_cn, summary, broadcast_time):
+        self.id = id
+        self.name = name
+        self.name_cn = name_cn
+        self.summary = summary
+        self.broadcast_time = broadcast_time # Captured from bangumi-data
 
+class Episode:
+    def __init__(self, ep, name_cn, airdate):
+        self.ep = ep
+        self.name_cn = name_cn
+        self.airdate = airdate
 
 class data:
-    def __init__(self, userid) -> None:
+    def __init__(self, userid):
         self.userid = userid
-        self.preUrl = "Https://api.bgm.tv"
-        self.epsUrl = self.preUrl + "/v0/episodes"
-        self.projectUrl = self.preUrl + "/v0/users/" + userid + "/collections"
-        self.headers = {
-            "User-Agent": "HammerCloth/BangumiCalendar-python(https://github.com/HammerCloth/BangumiCalendar-python)",
-            "Cookie": "chii_sid=H1LI6j; chii_sec_id=IzYtsAZndkyJf3CWdSC7%2BlxuGw%2FFeur7spG9SEg; chii_theme=dark; __utma=1.1194694437.1669987956.1669987956.1669987956.1; __utmc=1; __utmz=1.1669987956.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); __utmt=1; __utmb=1.7.10.1669987956"
-        }
         self.subjects = []
         self.epdict = {}
+        self.header = {'User-Agent': 'Mozilla/5.0'}
+        self.bgm_data_map = {}
+
+    def load_bangumi_data(self):
+        """Fetch broadcast times from bangumi-data project"""
+        url = "https://raw.githubusercontent.com/bangumi-data/bangumi-data/master/dist/data.json"
+        try:
+            res = requests.get(url).json()
+            for item in res['items']:
+                for site in item.get('sites', []):
+                    if site['site'] == 'bangumi':
+                        # Store the ISO start time (e.g., 2024-01-01T14:30:00.000Z)
+                        self.bgm_data_map[str(site['id'])] = item.get('begin', '')
+        except Exception as e:
+            print(f"Warning: Could not load bangumi-data: {e}")
 
     def getsubjects(self):
-        params = {
-            "type": 3,# 表示在看
-            "subject_type": 2 # 限定番剧
-        }
-        page = requests.get(url=self.projectUrl, headers=self.headers, params=params)
-        projects = page.json()["data"]
-        for i in projects:
-            self.subjects.append(
-                project(i["subject"]["name"], i["subject"]["name_cn"], i["subject"]["short_summary"], i["subject_id"]))
+        self.load_bangumi_data()
+        url = f"https://api.bgm.tv/v0/users/{self.userid}/collections?type=3"
+        res = requests.get(url, headers=self.header).json()
+        
+        for item in res.get('data', []):
+            sub = item['subject']
+            sid = str(sub['id'])
+            # Match ID to get the broadcast time
+            broadcast = self.bgm_data_map.get(sid, "")
+            
+            self.subjects.append(Subject(
+                sub['id'], sub['name'], sub['name_cn'], 
+                sub.get('short_summary', ''), broadcast
+            ))
 
     def geteps(self):
-        for i in self.subjects:
-            temp = []
-            params = {
-                "subject_id": i.id
-            }
-            page = requests.get(url=self.epsUrl, headers=self.headers, params=params)
-            eps = page.json()["data"]
-            for j in eps:
-                temp.append(ep(j["airdate"], j["name"], j["name_cn"], j["ep"]))
-            self.epdict[i.id] = temp
+        for sub in self.subjects:
+            url = f"https://api.bgm.tv/v0/episodes?subject_id={sub.id}"
+            res = requests.get(url, headers=self.header).json()
+            self.epdict[sub.id] = []
+            for ep_data in res.get('data', []):
+                if ep_data['type'] == 0:
+                    self.epdict[sub.id].append(Episode(
+                        ep_data['sort'], ep_data['name_cn'], ep_data['airdate']
+                    ))

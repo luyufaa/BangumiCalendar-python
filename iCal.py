@@ -1,36 +1,22 @@
-from datetime import datetime
-
 from icalendar import Calendar, Event
-
+from datetime import timedelta
 
 class iCal:
     def __init__(self):
-        g = open("BEGIN:VCALENDAR.ics", "rb")
-        self.cal = Calendar.from_ical(g.read())
-
-    def display(self):
-        print(self.cal.to_ical().decode("utf-8").replace('\r\n', '\n').strip())
-        return self
+        self.cal = Calendar()
+        self.cal.add('prodid', '-//BangumiCalendar//')
+        self.cal.add('version', '2.0')
+        self.cal.add('x-wr-timezone', 'Asia/Shanghai')
 
     def setEvent(self, summary, time, uuid, descripion):
         event = Event()
-        event.add('dtstamp', datetime.today().date(), parameters={'VALUE': 'DATE'})
-        event.add('uid', uuid)
-        event.add('dtstart', time, parameters={'VALUE': 'DATE'})
-        event.add('class', 'PUBLIC')
         event.add('summary', summary)
-        event.add("TRANSP", "TRANSPARENT")
-        event.add("description", descripion)
-        event.add("X-APPLE-UNIVERSAL-ID", "42902458-1dd4-5105-04d0-2dccc0194c5f")
+        event.add('dtstart', time)
+        event.add('dtend', time + timedelta(minutes=30))
+        event.add('uid', uuid)
+        event.add('description', descripion)
         self.cal.add_component(event)
-        return self
 
-    def write(self):
-        f = open("target.ics", "wb")
-        f.write(self.cal.to_ical())
-        f.close()
-        return self
-
-
-if __name__ == '__main__':
-    iCal().display().write()
+    def write(self, filename="target.ics"):
+        with open(filename, 'wb') as f:
+            f.write(self.cal.to_ical())
