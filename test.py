@@ -12,7 +12,7 @@ Step 3: Merge info and export to target.ics
 if __name__ == '__main__':
 
     # Hardcoded for local testing convenience
-    userid = "505477"
+    userid = "746322"
     
     # Initialize data fetcher
     data_fetcher = data(userid)
