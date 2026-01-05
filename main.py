@@ -40,7 +40,7 @@ if __name__ == '__main__':
                     summary=f"[{utc_label}Z] " + util.genSummary(subject.name, subject.name_cn, ep.ep),
                     time=utc_dt,
                     uuid=util.genUUID(subject.id, ep.ep, userid),
-                    descripion=util.genDec(subject.summary, ep.name_cn)
+                    description=util.genDec(subject.summary, ep.name_cn)
                 )
 
     # 3. Write specifically to target.ics for GitHub Action to commit
