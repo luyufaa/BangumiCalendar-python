@@ -1,21 +1,22 @@
-from icalendar import Calendar, Event, vDatetime
+from icalendar import Calendar, Event
 from datetime import timedelta
 
 class iCal:
     def __init__(self):
         self.cal = Calendar()
-        self.cal.add('prodid', '-//BangumiCalendar//')
+        self.cal.add('prodid', '-//luyufaa//BangumiCalendar//')
         self.cal.add('version', '2.0')
-        # This header helps some apps realize the file uses standard offsets
-        self.cal.add('x-wr-timezone', 'UTC') 
+        # Explicitly tell Apple Calendar the default timezone for this file
+        self.cal.add('x-wr-timezone', 'Asia/Shanghai')
 
     def setEvent(self, summary, time, uuid, description):
         event = Event()
         event.add('summary', summary)
         
-        # Use vDatetime to ensure the 'Z' is explicitly handled
-        event.add('dtstart', vDatetime(time))
-        event.add('dtend', vDatetime(time + timedelta(minutes=30)))
+        # When 'time' is a pytz-localized object, icalendar writes:
+        # DTSTART;TZID=Asia/Shanghai:20260108T220000
+        event.add('dtstart', time)
+        event.add('dtend', time + timedelta(minutes=30))
         
         event.add('uid', uuid)
         event.add('description', description)
