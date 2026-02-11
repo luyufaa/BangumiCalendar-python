@@ -74,6 +74,22 @@ class data:
             self.epdict[sub.id] = []
             for ep_data in res.get('data', []):
                 if ep_data['type'] == 0:
+                    # =======================================================
+                    # ### DATE SHIFT FIX ###
+                    if sub.id == 554013:
+                        try:
+                            # 1. Parse the original date (e.g. 2026-01-11)
+                            original_date = datetime.strptime(ep_data['airdate'], "%Y-%m-%d").date()
+                            
+                            # 2. Shift the date back by 4 days
+                            # Sunday (11th) - 4 days = Wednesday (7th)
+                            new_date = original_date - timedelta(days=4)
+                            
+                            # 3. Save the new date
+                            ep_data['airdate'] = new_date.strftime("%Y-%m-%d")
+                        except Exception as e:
+                            print(f"Date fix warning: {e}")
+                    # =======================================================
                     self.epdict[sub.id].append(Episode(
                         ep_data['sort'], ep_data['name_cn'], ep_data['airdate']
                     ))
