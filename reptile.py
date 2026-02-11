@@ -45,6 +45,22 @@ class data:
             sid = str(sub['id'])
             # Match ID to get the broadcast time
             broadcast = self.bgm_data_map.get(sid, "")
+
+            # =======================================================
+            # ### INSERT CUSTOM EDITS HERE ###
+            # Check for the specific Anime ID (e.g., 364450)
+            #if sub['id'] == 364450: 
+                # Example 1: Change the translated name
+             #   sub['name_cn'] = "Frieren (Custom Name)"
+                
+                # Example 2: Force a specific broadcast time (ISO format)
+                # This overrides the data fetched from bangumi-data
+              #  broadcast = "2024-01-05T23:00:00.000Z"
+
+            # Check for another Anime ID
+            elif sub['id'] == 554013: # 
+                broadcast = "2026-01-07T22:00:00.000Z"
+            # =======================================================
             
             self.subjects.append(Subject(
                 sub['id'], sub['name'], sub['name_cn'], 
