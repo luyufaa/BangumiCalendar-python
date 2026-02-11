@@ -58,7 +58,7 @@ class data:
               #  broadcast = "2024-01-05T23:00:00.000Z"
 
             # Check for another Anime ID
-            elif sub['id'] == 554013: # 
+            if sub['id'] == 554013: # 
                 broadcast = "2026-01-07T22:00:00.000Z"
             # =======================================================
             
