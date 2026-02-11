@@ -45,23 +45,6 @@ class data:
             sid = str(sub['id'])
             # Match ID to get the broadcast time
             broadcast = self.bgm_data_map.get(sid, "")
-
-            # =======================================================
-            # ### INSERT CUSTOM EDITS HERE ###
-            # Check for the specific Anime ID (e.g., 364450)
-            #if sub['id'] == 364450: 
-                # Example 1: Change the translated name
-             #   sub['name_cn'] = "Frieren (Custom Name)"
-                
-                # Example 2: Force a specific broadcast time (ISO format)
-                # This overrides the data fetched from bangumi-data
-              #  broadcast = "2024-01-05T23:00:00.000Z"
-
-            # Check for another Anime ID
-            if sub['id'] == 554013: # 
-                broadcast = "2026-01-07T14:00:00.000Z"
-            # =======================================================
-            
             self.subjects.append(Subject(
                 sub['id'], sub['name'], sub['name_cn'], 
                 sub.get('short_summary', ''), broadcast
@@ -74,22 +57,6 @@ class data:
             self.epdict[sub.id] = []
             for ep_data in res.get('data', []):
                 if ep_data['type'] == 0:
-                    # =======================================================
-                    # ### DATE SHIFT FIX ###
-                    if sub.id == 554013:
-                        try:
-                            # 1. Parse the original date (e.g. 2026-01-11)
-                            original_date = datetime.strptime(ep_data['airdate'], "%Y-%m-%d").date()
-                            
-                            # 2. Shift the date back by 4 days
-                            # Sunday (11th) - 4 days = Wednesday (7th)
-                            new_date = original_date - timedelta(days=4)
-                            
-                            # 3. Save the new date
-                            ep_data['airdate'] = new_date.strftime("%Y-%m-%d")
-                        except Exception as e:
-                            print(f"Date fix warning: {e}")
-                    # =======================================================
                     self.epdict[sub.id].append(Episode(
                         ep_data['sort'], ep_data['name_cn'], ep_data['airdate']
                     ))
