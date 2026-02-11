@@ -37,7 +37,7 @@ class data:
 
     def getsubjects(self):
         self.load_bangumi_data()
-        url = f"https://api.bgm.tv/v0/users/{self.userid}/collections?type=3"
+        url = f"https://api.bgm.tv/v0/users/{self.userid}/collections?type=3&limit=100"
         res = requests.get(url, headers=self.header).json()
         
         for item in res.get('data', []):
