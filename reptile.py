@@ -59,7 +59,7 @@ class data:
 
             # Check for another Anime ID
             if sub['id'] == 554013: # 
-                broadcast = "2026-01-07T22:00:00.000Z"
+                broadcast = "2026-01-07T14:00:00.000Z"
             # =======================================================
             
             self.subjects.append(Subject(
