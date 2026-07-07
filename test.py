@@ -25,10 +25,10 @@ if __name__ == '__main__':
     
     # Step 3: Integrate and export
     icl = iCal()
+    offsets = util.load_offsets()
     
     for key in data_fetcher.subjects:
-        # Extract the UTC time label for the summary
-        utc_label = key.broadcast_time[11:16] if key.broadcast_time else "00:00"
+        offset_td = util.get_offset_timedelta(key, offsets)
 
         for i in data_fetcher.epdict[key.id]:
             # Check if airdate is valid YYYY-MM-DD
@@ -37,9 +37,10 @@ if __name__ == '__main__':
                 # Merge episode date and subject UTC broadcast time
                 # Uses the updated util.genDateTime logic
                 utc_time = util.genDateTime(i.airdate, key.broadcast_time)
+                utc_time += offset_td
                 
                 icl.setEvent(
-                    summary=f"[{utc_label}Z] " + util.genSummary(key.name, key.name_cn, i.ep),
+                    summary=util.genSummary(key.name, key.name_cn, i.ep),
                     time=utc_time,
                     uuid=util.genUUID(key.id, i.ep, userid),
                     description=util.genDec(key.summary, i.name_cn)

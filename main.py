@@ -24,20 +24,19 @@ if __name__ == '__main__':
     
     # 2. Build the iCalendar
     icl = iCal()
+    offsets = util.load_offsets()
     
     for subject in fetcher.subjects:
-        # Get UTC time for the title label
-        # format: "2024-01-05T14:30:00.000Z" -> "14:30"
-        utc_label = subject.broadcast_time[11:16] if subject.broadcast_time else "00:00"
+        offset_td = util.get_offset_timedelta(subject, offsets)
 
         for ep in fetcher.epdict.get(subject.id, []):
             if ep.airdate and len(ep.airdate) == 10:
                 # Generate UTC-aware datetime object
                 utc_dt = util.genDateTime(ep.airdate, subject.broadcast_time)
+                utc_dt += offset_td
                 
                 icl.setEvent(
-                    # Title includes UTC time for reference
-                    summary=f"[{utc_label}Z] " + util.genSummary(subject.name, subject.name_cn, ep.ep),
+                    summary=util.genSummary(subject.name, subject.name_cn, ep.ep),
                     time=utc_dt,
                     uuid=util.genUUID(subject.id, ep.ep, userid),
                     description=util.genDec(subject.summary, ep.name_cn)
